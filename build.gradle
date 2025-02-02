@@ -12,10 +12,9 @@ buildscript {
 
 
 plugins {
-    id 'com.github.ben-manes.versions' version '0.47.0'
-    id 'com.github.sherter.google-java-format' version '0.8'
-    id "de.marcphilipp.nexus-publish" version "0.4.0"
-    id 'io.codearte.nexus-staging' version '0.30.0'
+    id 'com.github.ben-manes.versions' version '0.51.0'
+    id 'com.github.sherter.google-java-format' version '0.9'
+    id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
 }
 
 apply plugin: 'java'
@@ -34,14 +33,18 @@ repositories {
     mavenCentral()
 }
 
+googleJavaFormat {
+    toolVersion = "1.1"
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 artifacts {
@@ -51,17 +54,17 @@ artifacts {
 }
 
 dependencies {
-    compileOnly 'com.google.appengine:appengine-api-1.0-sdk:2.0.16'
+    compileOnly 'com.google.appengine:appengine-api-1.0-sdk:2.0.31'
     api 'com.squareup.okhttp3:okhttp:4.11.0'
-    api 'com.google.code.gson:gson:2.10.1'
-    api 'io.opencensus:opencensus-api:0.31.0'
-    implementation 'org.slf4j:slf4j-api:2.0.7'
+    api 'com.google.code.gson:gson:2.11.0'
+    api 'io.opencensus:opencensus-api:0.31.1'
+    implementation 'org.slf4j:slf4j-api:2.0.16'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
     testImplementation 'org.apache.httpcomponents:httpclient:4.5.14'
-    testImplementation 'org.slf4j:slf4j-simple:2.0.6'
-    testImplementation 'org.apache.commons:commons-lang3:3.12.0'
-    testImplementation 'org.json:json:20230618'
+    testImplementation 'org.slf4j:slf4j-simple:2.0.16'
+    testImplementation 'org.apache.commons:commons-lang3:3.17.0'
+    testImplementation 'org.json:json:20240303'
     testImplementation 'io.opencensus:opencensus-impl:0.31.1'
     testImplementation "org.mockito:mockito-inline:5.2.0"
 }
@@ -104,8 +107,8 @@ jacoco {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true // coveralls plugin depends on xml format report
-        html.enabled = true
+        xml.required = true // coveralls plugin depends on xml format report
+        html.required = true
     }
 }
 
@@ -184,6 +187,7 @@ publishing {
 }
 
 nexusPublishing {
+    packageGroup = "com.google.maps"
     repositories {
         sonatype {
             username = sonatypeUsername
@@ -191,12 +195,6 @@ nexusPublishing {
             clientTimeout = Duration.ofSeconds(120)
         }
     }
-}
-
-nexusStaging {
-    username = sonatypeUsername
-    password = sonatypePassword
-    packageGroup = "com.google.maps"
 }
 
 signing {
